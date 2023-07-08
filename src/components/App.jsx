@@ -1,4 +1,7 @@
 import { Component } from 'react';
+import { Statistics } from './Statistics/Statistics';
+import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
+import { Section } from './Section/Section';
 
 export class App extends Component {
   state = {
@@ -9,34 +12,38 @@ export class App extends Component {
     positivePercentage: 0,
   };
 
-  onGoodClick = () => {
-    this.setState(prev => ({
-      good: prev.good + 1,
-      total: this.countTotalFeedback(prev.good + 1, prev.neutral, prev.bad),
-      positivePercentage: this.countPositiveFeedbackPercentage(
-        prev.good + 1,
-        prev.total + 1
-      ),
-    }));
-  };
+  onLeaveFeedback = e => {
+    let countGood = 0;
+    let countNeutral = 0;
+    let countBad = 0;
+    switch (e.target.textContent) {
+      case 'Good':
+        countGood = 1;
+        break;
 
-  onNeutralClick = () => {
-    this.setState(prev => ({
-      neutral: prev.neutral + 1,
-      total: this.countTotalFeedback(prev.good, prev.neutral + 1, prev.bad),
-      positivePercentage: this.countPositiveFeedbackPercentage(
-        prev.good,
-        prev.total + 1
-      ),
-    }));
-  };
+      case 'Neutral':
+        countNeutral = 1;
+        break;
 
-  onBadClick = () => {
+      case 'Bad':
+        countBad = 1;
+        break;
+
+      default:
+        console.log('Invalid subscription type');
+    }
+
     this.setState(prev => ({
-      bad: prev.bad + 1,
-      total: this.countTotalFeedback(prev.good, prev.neutral, prev.bad + 1),
+      good: prev.good + countGood,
+      neutral: prev.neutral + countNeutral,
+      bad: prev.bad + countBad,
+      total: this.countTotalFeedback(
+        prev.good + countGood,
+        prev.neutral + countNeutral,
+        prev.bad + countBad
+      ),
       positivePercentage: this.countPositiveFeedbackPercentage(
-        prev.good,
+        prev.good + countGood,
         prev.total + 1
       ),
     }));
@@ -52,29 +59,24 @@ export class App extends Component {
 
   render() {
     return (
-      <div>
-        <p>Please leave feedback</p>
-
-        <div>
-          <button type="button" onClick={this.onGoodClick}>
-            Good
-          </button>
-          <button type="button" onClick={this.onNeutralClick}>
-            Neutral
-          </button>
-          <button type="button" onClick={this.onBadClick}>
-            Bad
-          </button>
-        </div>
-        <p>Statistics</p>
-        <ul>
-          <li>Good: {this.state.good}</li>
-          <li>Neutral: {this.state.neutral}</li>
-          <li>Bad: {this.state.bad}</li>
-          <li>Total: {this.state.total}</li>
-          <li>Positive feedback: {this.state.positivePercentage}%</li>
-        </ul>
-      </div>
+      <>
+        <Section title="Please leave feedback">
+          Please leave feedback
+          <FeedbackOptions
+            onLeaveFeedback={this.onLeaveFeedback}
+          ></FeedbackOptions>
+        </Section>
+        <Section title="Statistics">
+          Statistics
+          <Statistics
+            good={this.state.good}
+            neutral={this.state.neutral}
+            bad={this.state.bad}
+            total={this.state.total}
+            positivePercentage={this.state.positivePercentage}
+          ></Statistics>
+        </Section>
+      </>
     );
   }
 }
